@@ -54,3 +54,9 @@ Pieces’ honor starts at the total number of pieces on the board, including bot
 Reference: [Fairy-Stockfish Cambodian count limits and transitions](https://github.com/fairy-stockfish/Fairy-Stockfish/blob/9f778da667f6e07dae1e85d3e2ea204fc6dee94d/src/position.cpp), with the earlier-board-deadline handling in [position.h](https://github.com/fairy-stockfish/Fairy-Stockfish/blob/9f778da667f6e07dae1e85d3e2ea204fc6dee94d/src/position.h). This app follows that digital rules convention; local tournament claim procedures may differ.
 
 Piece glyphs use the bundled Noto Sans Symbols 2 font, licensed under the SIL Open Font License in `assets/fonts/OFL.txt`. No external font request is needed.
+
+## 3D board and animation
+
+The board opens in a 3D view with a tilted wooden frame, sculpted ivory/crimson pieces, directional lighting, and contact shadows. Piece bodies are generated from 3D surfaces of revolution and projected onto Flutter's canvas; no external 3D engine or downloaded models are needed. This is a fixed-camera view, not an orbitable 3D scene.
+
+Moves glide along a lifted arc, captures shrink and fade, and selected pieces rise above the board. Use **3D** to switch to the original flat symbols, and **Motion** to disable animation. The app also respects the device's reduced-motion accessibility setting. Undo, restart, flipping, and view changes cancel an active move transition safely. Rules, computer play, and endgame counting are unchanged.

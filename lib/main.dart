@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'game.dart';
+import 'animated_board.dart';
 
 const ink = Color(0xff263b32);
 const cream = Color(0xfff5f2e9);
@@ -36,6 +37,7 @@ class _GamePageState extends State<GamePage> {
   final moves = <String>[];
   int? selected;
   bool againstComputer = true, thinking = false, flipped = false;
+  bool threeD = true, animations = true;
   int generation = 0;
   Timer? timer;
   List<Move> get legal => game.legalMoves();
@@ -92,7 +94,7 @@ class _GamePageState extends State<GamePage> {
     if (!againstComputer || game.turn != Side.black || result != null) return;
     setState(() => thinking = true);
     final ticket = generation;
-    timer = Timer(const Duration(milliseconds: 350), () async {
+    timer = Timer(const Duration(milliseconds: 550), () async {
       final move = await compute(calculateMove, game.copy());
       if (!mounted || generation != ticket) return;
       setState(() {
@@ -271,142 +273,35 @@ class _GamePageState extends State<GamePage> {
   }
 
   Widget boardPanel() => Column(children: [
+        Row(children: [
+          const Icon(Icons.view_in_ar_outlined, size: 18, color: gold),
+          const SizedBox(width: 8),
+          const Expanded(
+              child: Text('THE PLAYING TABLE',
+                  style:
+                      TextStyle(fontSize: 10, letterSpacing: 1.5, color: ink))),
+          FilterChip(
+              label: const Text('3D'),
+              selected: threeD,
+              onSelected: (v) => setState(() => threeD = v)),
+          const SizedBox(width: 8),
+          FilterChip(
+              label: const Text('Motion'),
+              selected: animations,
+              onSelected: (v) => setState(() => animations = v)),
+        ]),
         player(flipped ? Side.white : Side.black),
-        Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-                color: ink,
-                borderRadius: BorderRadius.circular(8),
-                boxShadow: const [
-                  BoxShadow(
-                      color: Color(0x22000000),
-                      blurRadius: 25,
-                      offset: Offset(0, 10))
-                ]),
-            child: AspectRatio(
-                aspectRatio: 1,
-                child: LayoutBuilder(builder: (context, constraints) {
-                  final size = constraints.maxWidth / 8;
-                  final destinations = legal
-                      .where((m) => m.from == selected)
-                      .map((m) => m.to)
-                      .toSet();
-                  return Column(
-                      children: List.generate(
-                          8,
-                          (row) => Expanded(
-                              child: Row(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
-                                  children: List.generate(8, (col) {
-                                    final square = flipped
-                                        ? 63 - (row * 8 + col)
-                                        : row * 8 + col;
-                                    final p = game.board[square];
-                                    final last =
-                                        game.lastMove?.from == square ||
-                                            game.lastMove?.to == square;
-                                    final check = p?.kind == Kind.king &&
-                                        p?.side == game.turn &&
-                                        game.inCheck(game.turn);
-                                    final bg = selected == square
-                                        ? const Color(0xffcfac65)
-                                        : check
-                                            ? const Color(0xffce8370)
-                                            : last
-                                                ? const Color(0xffbec29b)
-                                                : (row + col).isEven
-                                                    ? const Color(0xffece5d3)
-                                                    : const Color(0xffa8b3a0);
-                                    return Expanded(
-                                        child: Semantics(
-                                            label:
-                                                '${squareName(square)}, ${p == null ? 'empty' : '${p.side.label} ${p.name}'}${destinations.contains(square) ? ', legal destination' : ''}',
-                                            button: true,
-                                            selected: selected == square,
-                                            child: Tooltip(
-                                                message:
-                                                    '${squareName(square)}${p == null ? '' : ' · ${p.side.label} ${p.name}'}',
-                                                child: Material(
-                                                    color: bg,
-                                                    child: InkWell(
-                                                        onTap: () =>
-                                                            tap(square),
-                                                        child: Stack(
-                                                            alignment: Alignment
-                                                                .center,
-                                                            children: [
-                                                              if (p != null)
-                                                                ExcludeSemantics(
-                                                                    child: Text(
-                                                                        p
-                                                                            .symbol,
-                                                                        style: TextStyle(
-                                                                            fontFamily:
-                                                                                'ChaktrangSymbols',
-                                                                            fontSize: size * .76,
-                                                                            height: 1.1,
-                                                                            color: p.side == Side.white ? const Color(0xfffffbec) : const Color(0xff873f37),
-                                                                            shadows: const [
-                                                                              Shadow(color: Color(0xff3f4b37), blurRadius: 1, offset: Offset(0, 1))
-                                                                            ]))),
-                                                              if (destinations
-                                                                  .contains(
-                                                                      square))
-                                                                Container(
-                                                                    width: p == null
-                                                                        ? size *
-                                                                            .23
-                                                                        : size *
-                                                                            .88,
-                                                                    height: p ==
-                                                                            null
-                                                                        ? size *
-                                                                            .23
-                                                                        : size *
-                                                                            .88,
-                                                                    decoration: BoxDecoration(
-                                                                        shape: BoxShape
-                                                                            .circle,
-                                                                        color: p ==
-                                                                                null
-                                                                            ? const Color(
-                                                                                0x66304b36)
-                                                                            : null,
-                                                                        border: p ==
-                                                                                null
-                                                                            ? null
-                                                                            : Border.all(
-                                                                                color: ink.withValues(alpha: .5),
-                                                                                width: 3))),
-                                                              if (col == 0)
-                                                                Positioned(
-                                                                    top: 3,
-                                                                    left: 4,
-                                                                    child: Text(
-                                                                        '${8 - square ~/ 8}',
-                                                                        style: const TextStyle(
-                                                                            fontSize:
-                                                                                9,
-                                                                            color:
-                                                                                ink))),
-                                                              if (row == 7)
-                                                                Positioned(
-                                                                    bottom: 2,
-                                                                    right: 4,
-                                                                    child: Text(
-                                                                        'abcdefgh'[
-                                                                            square %
-                                                                                8],
-                                                                        style: const TextStyle(
-                                                                            fontSize:
-                                                                                9,
-                                                                            color:
-                                                                                ink))),
-                                                            ]))))));
-                                  })))));
-                }))),
-        player(flipped ? Side.black : Side.white)
+        Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: AnimatedBoard(
+                game: game,
+                selected: selected,
+                flipped: flipped,
+                threeD: threeD,
+                animations: animations,
+                legalMoves: legal,
+                onTap: tap)),
+        player(flipped ? Side.black : Side.white),
       ]);
   Widget sidebar() =>
       Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
