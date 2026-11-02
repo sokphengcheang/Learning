@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'game.dart';
 import 'animated_board.dart';
+import 'thermion_preview_page.dart';
 
 const ink = Color(0xff263b32);
 const cream = Color(0xfff5f2e9);
@@ -289,6 +290,12 @@ class _GamePageState extends State<GamePage> {
               label: const Text('Motion'),
               selected: animations,
               onSelected: (v) => setState(() => animations = v)),
+          IconButton(
+              tooltip: 'Open real 3D engine preview',
+              onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                      builder: (_) => const ThermionPreviewPage())),
+              icon: const Icon(Icons.view_in_ar_outlined)),
         ]),
         player(flipped ? Side.white : Side.black),
         Padding(
