@@ -116,12 +116,12 @@ class _AnimatedBoardState extends State<AnimatedBoard>
             if (!widget.threeD) return;
             setState(() {
               _yaw = (_yaw + details.focalPointDelta.dx * .006)
-                  .clamp(-.62, .62);
+                  .clamp(-.62, .62).toDouble();
               _cameraTilt =
                   (_cameraTilt - details.focalPointDelta.dy * .004)
-                      .clamp(.12, .52);
+                      .clamp(.12, .52).toDouble();
               _zoom = (_zoom * (details.scale / _lastScale))
-                  .clamp(.88, 1.22);
+                  .clamp(.88, 1.22).toDouble();
             });
             _lastScale = details.scale;
           },
