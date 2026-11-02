@@ -55,6 +55,48 @@ Reference: [Fairy-Stockfish Cambodian count limits and transitions](https://gith
 
 Piece glyphs use the bundled Noto Sans Symbols 2 font, licensed under the SIL Open Font License in `assets/fonts/OFL.txt`. No external font request is needed.
 
+## Real 3D renderer prototype
+
+The project now includes an isolated Thermion renderer preview. It uses the Filament-based 3D renderer through Flutter, with a sample glTF model to verify the renderer before replacing the current board. The existing chess UI, rules, and computer player remain unchanged.
+
+This branch pins `thermion_flutter: ^0.4.1` so it remains compatible with the project's Dart 3.9-era toolchain. Thermion 0.4.0 introduced improved Web support; 0.5.0 requires Dart 3.10, so upgrade the Flutter SDK before moving to that version.
+
+### Local setup
+
+1. Use Flutter stable with Dart 3.6 or newer (the existing Flutter 3.35.7 / Dart 3.9.2 setup meets the Dart requirement).
+2. Enable Flutter native assets once:
+
+   ```sh
+   flutter config --enable-native-assets
+   ```
+
+3. Generate the native application runners because this repository currently has no Android or iOS folders:
+
+   ```sh
+   flutter create --platforms=android,ios .
+   ```
+
+4. Ensure the iOS deployment target in `ios/Podfile` and the Xcode Runner target is at least iOS 13.0.
+5. Fetch packages and run the app:
+
+   ```sh
+   flutter pub get
+   flutter run -d chrome
+   flutter run -d <your-android-device>
+   ```
+
+6. Build platform outputs:
+
+   ```sh
+   flutter build web --release
+   flutter build apk --debug
+   flutter build ios --no-codesign
+   ```
+
+The first native-assets build may download renderer binaries. The Web build also prepares the renderer's WebAssembly assets. Run these builds on the relevant toolchains; this repository change has not yet been compiled or device-tested.
+
+Open the **3D engine preview** icon beside the board controls to load the temporary sample model. Drag to orbit and pinch/scroll to zoom. This is an engine smoke test, not the finished Cambodian chessboard. Once it runs on Web and a physical Android/iOS device, replace the sample with the custom Ouk Chaktrang board and piece models, then connect picking and transforms to the existing game state.
+
 ## 3D board and animation
 
 The board opens in a 3D view with a tilted wooden frame, sculpted ivory/crimson pieces, directional lighting, and contact shadows. Piece bodies are generated from 3D surfaces of revolution and projected onto Flutter's canvas; no external 3D engine or downloaded models are needed. This is a fixed-camera view, not an orbitable 3D scene.
