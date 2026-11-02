@@ -163,7 +163,7 @@ class _AnimatedBoardState extends State<AnimatedBoard>
                               bottom: BorderSide(
                                   color: const Color(0xff39271c),
                                   width: 4 + 7 * tilt))),
-                      child: child))),
+                      child: child)))),
       child: AspectRatio(
           aspectRatio: 1,
           child: LayoutBuilder(builder: (context, constraints) {
