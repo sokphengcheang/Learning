@@ -57,6 +57,6 @@ Piece glyphs use the bundled Noto Sans Symbols 2 font, licensed under the SIL Op
 
 ## 3D board and animation
 
-The board opens in a 3D view with a tilted wooden frame, sculpted ivory/crimson pieces, directional lighting, and contact shadows. Piece bodies are generated from 3D surfaces of revolution and projected onto Flutter's canvas; no external 3D engine or downloaded models are needed. This is a fixed-camera view, not an orbitable 3D scene.
+The board opens in a 3D view with a tilted wooden frame, sculpted ivory/crimson pieces, directional lighting, and contact shadows. Piece bodies are generated from 3D surfaces of revolution and projected onto Flutter's canvas; no external 3D engine or downloaded models are needed. In 3D mode, drag to orbit the board, use a pinch gesture to zoom, and double-tap to reset the camera. The view is a lightweight Flutter perspective renderer rather than a full external 3D engine; the game rules and AI remain independent of rendering.
 
 Moves glide along a lifted arc, captures shrink and fade, and selected pieces rise above the board. Use **3D** to switch to the original flat symbols, and **Motion** to disable animation. The app also respects the device's reduced-motion accessibility setting. Undo, restart, flipping, and view changes cancel an active move transition safely. Rules, computer play, and endgame counting are unchanged.
