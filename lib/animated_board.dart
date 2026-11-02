@@ -30,6 +30,12 @@ class _AnimatedBoardState extends State<AnimatedBoard>
   Piece? captured;
   bool get animate =>
       widget.animations && !MediaQuery.disableAnimationsOf(context);
+
+  // Interactive camera controls for the perspective board.
+  double _yaw = 0;
+  double _cameraTilt = .23;
+  double _zoom = 1;
+  double _lastScale = 1;
   @override
   void didUpdateWidget(covariant AnimatedBoard old) {
     super.didUpdateWidget(old);
@@ -103,37 +109,61 @@ class _AnimatedBoardState extends State<AnimatedBoard>
     return TweenAnimationBuilder<double>(
       tween: Tween(end: widget.threeD ? 1 : 0),
       duration: duration,
-      builder: (context, tilt, child) => Transform(
-          alignment: Alignment.center,
-          transform: Matrix4.identity()
-            ..setEntry(3, 2, .0012)
-            ..rotateX(-.23 * tilt),
-          child: DecoratedBox(
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(14),
-                  boxShadow: [
-                    BoxShadow(
-                        color: const Color(0xff493522).withValues(alpha: .28),
-                        blurRadius: 22,
-                        offset: Offset(0, 16 + 8 * tilt))
-                  ]),
-              child: Container(
-                  padding: const EdgeInsets.all(12),
+      builder: (context, tilt, child) => GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onScaleStart: (_) => _lastScale = 1,
+          onScaleUpdate: (details) {
+            if (!widget.threeD) return;
+            setState(() {
+              _yaw = (_yaw + details.focalPointDelta.dx * .006)
+                  .clamp(-.62, .62);
+              _cameraTilt =
+                  (_cameraTilt - details.focalPointDelta.dy * .004)
+                      .clamp(.12, .52);
+              _zoom = (_zoom * (details.scale / _lastScale))
+                  .clamp(.88, 1.22);
+            });
+            _lastScale = details.scale;
+          },
+          onDoubleTap: () => setState(() {
+            _yaw = 0;
+            _cameraTilt = .23;
+            _zoom = 1;
+          }),
+          child: Transform(
+              alignment: Alignment.center,
+              transform: Matrix4.identity()
+                ..setEntry(3, 2, .0012)
+                ..rotateX(-_cameraTilt * tilt)
+                ..rotateY(_yaw * tilt)
+                ..scale(1 + (_zoom - 1) * tilt),
+              child: DecoratedBox(
                   decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      gradient: const LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Color(0xff9b7447),
-                            Color(0xff3d291d),
-                            Color(0xff7c5634)
-                          ]),
-                      border: Border(
-                          bottom: BorderSide(
-                              color: const Color(0xff39271c),
-                              width: 4 + 7 * tilt))),
-                  child: child))),
+                      borderRadius: BorderRadius.circular(14),
+                      boxShadow: [
+                        BoxShadow(
+                            color:
+                                const Color(0xff493522).withValues(alpha: .28),
+                            blurRadius: 22,
+                            offset: Offset(0, 16 + 8 * tilt))
+                      ]),
+                  child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          gradient: const LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                Color(0xff9b7447),
+                                Color(0xff3d291d),
+                                Color(0xff7c5634)
+                              ]),
+                          border: Border(
+                              bottom: BorderSide(
+                                  color: const Color(0xff39271c),
+                                  width: 4 + 7 * tilt))),
+                      child: child))),
       child: AspectRatio(
           aspectRatio: 1,
           child: LayoutBuilder(builder: (context, constraints) {
