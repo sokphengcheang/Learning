@@ -3,15 +3,19 @@ description: Ouk Chaktrang with local and computer play.
 publish_to: none
 version: 1.0.0+1
 environment:
-  sdk: '>=3.4.0 <4.0.0'
+  sdk: '>=3.6.0 <4.0.0'
 dependencies:
   flutter:
     sdk: flutter
+  thermion_flutter: ^0.4.1
+  vector_math: ^2.1.4
 dev_dependencies:
   flutter_test:
     sdk: flutter
 flutter:
   uses-material-design: true
+  assets:
+    - assets/thermion/
   fonts:
     - family: ChaktrangSymbols
       fonts:
